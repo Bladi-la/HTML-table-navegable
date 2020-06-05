@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jose - Navegacion dinamica en tabla </title>
+    <style>
+        body {
+            font-size: 1em;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        }
+
+        .resaltar {
+            border: solid 2px orangered;
+        }
+
+        #people {
+            margin: 1em auto;
+        }
+
+        caption {
+            padding: 5px;
+        }
+
+        th {
+            color: #000;
+            background-color: #ccc;
+            font-weight: normal;
+        }
+
+        td,
+        th {
+            border: 1px solid #ccc;
+            margin: 0;
+            padding: 4px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        input {
+            padding: .5em;
+            border-radius: 5px;
+            border-style: outset;
+        }
+    </style>
+</head>
+
+<body>
+    <table id="people">
+        <caption>
+            Use the arrow keys to navigate among the cells
+        </caption>
+        <thead>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Phone Number</th>
+            <th>Location</th>
+        </thead>
+        <tbody>
+            <tr>
+                <td><input autofocus="on" value="Hola mundo" /></td>
+                <td><input /></td>
+                <td><input /></td>
+                <td><input /></td>
+            </tr>
+            <tr class="hidden">
+                <td><input /></td>
+                <td><input /></td>
+                <td><input /></td>
+                <td><input /></td>
+            </tr>
+            <tr>
+                <td><input readonly="true" value="Hello word" /></td>
+                <td><input readonly="true" value="Hello word" /></td>
+                <td><input readonly="true" value="Hello word" /></td>
+                <td><input readonly="true" value="Hello word" /></td>
+            </tr>
+            <tr>
+                <td><input /></td>
+                <td><input /></td>
+                <td><input /></td>
+                <td><input /></td>
+            </tr>
+            <tr class="hidden">
+                <td><input readonly="true" value="Hello word" /></td>
+                <td><input readonly="true" value="Hello word" /></td>
+                <td><input readonly="true" value="Hello word" /></td>
+                <td><input readonly="true" value="Hello word" /></td>
+            </tr>
+            <tr>
+                <td><input readonly="true" value="Hello word" /></td>
+                <td><input readonly="true" value="Hello word" /></td>
+                <td><input readonly="true" value="Hello word" /></td>
+                <td><input readonly="true" value="Hello word" /></td>
+            </tr>
+            <tr class="hidden">
+                <td><input readonly="true" value="Hello word" /></td>
+                <td><input readonly="true" value="Hello word" /></td>
+                <td><input readonly="true" value="Hello word" /></td>
+                <td><input readonly="true" value="Hello word" /></td>
+            </tr>
+            <tr>
+                <td><input /></td>
+                <td><input /></td>
+                <td><input /></td>
+                <td><input /></td>
+            </tr>
+            <tr>
+                <td><input readonly="true" value="Hello word" onfocus="this.value = this.value" /></td>
+                <td><input readonly="true" value="Hello word" onfocus="this.value = this.value" /></td>
+                <td><input readonly="true" value="Hello word" onfocus="this.value = this.value" /></td>
+                <td><input readonly="true" value="Hello word" onfocus="this.value = this.value" /></td>
+            </tr>
+        </tbody>
+    </table>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+        alert('SE HA MEJORADO LA NAVEGACION CON LAS TECLAS <<LEFT Y RINGT>>\nEVITANDO UN CICLO INFINITO.\nTAMBIEN SE HA AGREGADO' +
+            'LA POSOBLILIDAD DE NAVEGAR DE FORMA CIRCULAR POR LAS FILAS DE LA TABLA ');
+        
+
+        (function ($) {
+
+
+            $.fn.enableCellNavigation = function () {
+
+                var arrow = {
+                    left: 37,
+                    up: 38,
+                    right: 39,
+                    down: 40
+                };
+
+                // select all on focus
+                // works for input elements, and will put focus into
+                // adjacent input or textarea. once in a textarea,
+                // however, it will not attempt to break out because
+                // that just seems too messy imho.
+                this.find('input').keydown(function (e) {
+
+                    // shortcut for key other than arrow keys
+                    if ($.inArray(e.which, [arrow.left, arrow.up, arrow.right, arrow.down]) < 0) {
+                        return;
+                    }
+
+                    var input = e.target;
+                    var td = $(e.target).closest('td');
+
+                    var moveTo = null;
+
+                    var posRow = td[0].cellIndex;
+
+                    var tr = td.closest('tr');
+                    var posColl = tr[0].cells[posRow];
+
+                  
+                    switch (e.which) {
+
+
+                        case arrow.left:
+
+                            {
+
+                                if (posRow > 0) {
+
+                                    moveTo = td.prev('td:has(input,textarea)');
+                                    posRow--;
+                                   
+                                } else {
+
+                                    posRow = ($('#people tr:last td').length - 1);
+                                    moveTo = $(tr[0].cells[posRow]);
+                                    
+                                }
+
+                                break;
+                            }
+                        case arrow.right:
+
+                            {
+
+                                if (posRow < ($('#people tr:last td').length - 1)) {
+
+                                    moveTo = td.next('td:has(input,textarea)');
+                                    posRow++;
+                                    
+                                } else {
+                                    posRow = 0;
+                                    moveTo = $(tr[0].cells[posRow]);
+                                }
+                                break;
+                            }
+
+                        case arrow.up:
+                        case arrow.down:
+                            {
+
+                                var tr = td.closest('tr');
+                                var posaux = td[0].cellIndex;
+
+                                var moveToRow = null;
+                                if (e.which == arrow.down) {
+
+                                    if (tr.index() < $('#people tbody tr').length - 1) {
+
+
+                                        if (isVisible(tr)) {
+
+                                            moveToRow = tr.next('tr');
+                                        } else {
+
+                                            moveToRow = downNext(tr);
+
+                                        }
+
+                                    } else {
+
+                                        moveToRow = $('#people tbody tr').first();
+
+                                    }
+
+
+                                } else if (e.which == arrow.up) {
+
+                                    if (tr.index() > 0) {
+
+                                        if (tr.prev('tr').is(':visible')) {
+
+                                            moveToRow = tr.prev('tr');
+                                        } else {
+                                            moveToRow = upPrev(tr);
+                                        }
+
+                                    } else {
+
+                                        moveToRow = $('#people tbody tr').last();
+                                    }
+                                }
+                                if (moveToRow.length) {
+                                    moveTo = $(moveToRow[0].cells[posaux]);
+
+                                }
+
+                                break;
+
+                            }
+                    }
+
+                    if (moveTo && moveTo.length) {
+                        e.preventDefault();
+                        moveTo.find('input,textarea').each(function (i, input) {
+
+                            addStyleInput(input);
+
+                        });
+
+                    }
+
+                });
+
+            };
+
+        })(jQuery);
+
+        function addStyleInput(inp) {
+
+            if ($(inp).val().length > 0) {
+
+                $(inp).val($(inp).val() + ' ')
+
+                $(inp).val(clean_text(inp) + ' ');
+                $(inp).focus();
+
+            } else {
+                $(inp).focus();
+
+            }
+
+            $(inp).removeAttr('readonly')
+
+            $(inp).addClass('resaltar');
+
+        }
+        //cuando el input pierde el fucus se le agrega nuevamente el atributo solo de lectura
+        $('input').focusout(function () {
+            $(this).attr('readonly', 'true')
+            $(this).removeClass('resaltar');
+        });
+        // use the plugin
+        $(function () {
+            $('#people').enableCellNavigation();
+        });
+        $('input').click(function () {
+
+            console.log('Pos = ' + pos)
+            addStyleInput(this);
+        });
+        function isVisible(tr) {
+
+            if (tr !== $('#people tbody tr').last()) {
+                return tr.next('tr').is(":visible");
+            } else {
+                return $('#people tbody tr').first();
+            }
+
+        }
+        function upPrev(tr) {
+
+            while (tr.index() > 0) {
+
+                tr = tr.prev('tr');
+                if (tr.prev('tr').is(':visible')) {
+                    return tr.prev('tr');
+                }
+            }
+
+        }
+        function downNext(tr) {
+            while (tr.index() < $('#people tbody tr').length - 1) {
+
+                tr = tr.next('tr');
+                if (isVisible(tr)) {
+                    return tr.next('tr');
+                }
+            }
+
+        }
+        //quita los espacios al final del texto
+        function clean_text(inp) {
+
+            var text = $(inp).val();
+
+            var text_length = text.length - 1;
+            // 32 es un espacio en blanco
+            while ((text.charCodeAt(text_length) === 32)) {
+                text_length--;
+            }
+
+            return text.slice(0, text_length + 1);
+
+        }
+
+
+    </script>
+</body>
+
+</html>
