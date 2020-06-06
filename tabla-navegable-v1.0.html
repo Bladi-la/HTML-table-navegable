@@ -118,8 +118,8 @@
     </table>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script>
-        alert('SE HA MEJORADO LA NAVEGACION CON LAS TECLAS <<LEFT Y RINGT>>\nEVITANDO UN CICLO INFINITO.\nTAMBIEN SE HA AGREGADO' +
-            'LA POSOBLILIDAD DE NAVEGAR DE FORMA CIRCULAR POR LAS FILAS DE LA TABLA ');
+        alert('SE HA MEJORADO LA NAVEGACION CON LAS TECLAS <<DERECHA Y IZQUIERDA, ARRIBA Y ABAJO>>\nEVITANDO UN CICLO INFINITO.\nTAMBIEN SE HA AGREGADO' +
+            'LA POSOBLILIDAD DE NAVEGAR DE FORMA CIRCULAR POR LAS FILAS Y COLUMNAS DE LA TABLA');
         
 
         (function ($) {
@@ -148,11 +148,8 @@
 
                     var input = e.target;
                     var td = $(e.target).closest('td');
-
                     var moveTo = null;
-
                     var posRow = td[0].cellIndex;
-
                     var tr = td.closest('tr');
                     var posColl = tr[0].cells[posRow];
 
@@ -200,8 +197,8 @@
 
                                 var tr = td.closest('tr');
                                 var posaux = td[0].cellIndex;
-
                                 var moveToRow = null;
+
                                 if (e.which == arrow.down) {
 
                                     if (tr.index() < $('#people tbody tr').length - 1) {
@@ -210,6 +207,7 @@
                                         if (isVisible(tr)) {
 
                                             moveToRow = tr.next('tr');
+
                                         } else {
 
                                             moveToRow = downNext(tr);
@@ -230,6 +228,7 @@
                                         if (tr.prev('tr').is(':visible')) {
 
                                             moveToRow = tr.prev('tr');
+
                                         } else {
                                             moveToRow = upPrev(tr);
                                         }
